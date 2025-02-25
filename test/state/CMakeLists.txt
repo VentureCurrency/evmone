@@ -45,7 +45,7 @@ target_sources(
 
 find_package(OpenSSL COMPONENTS Crypto)
 if(OPENSSL_FOUND)
-    target_compile_definitions(evmone-state PRIVATE EVMONE_PRECOMPILES_OPENSSL=1)
+    target_compile_definitions(evmone-state PUBLIC EVMONE_PRECOMPILES_OPENSSL=1)
     target_link_libraries(evmone-state PRIVATE OpenSSL::Crypto)
     target_sources(
         evmone-state PRIVATE
