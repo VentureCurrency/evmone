@@ -4,6 +4,8 @@
 
 # The internal evmone unit tests. The generic EVM ones are also built in.
 add_executable(evmone-unittests)
+set_property(TARGET evmone-unittests PROPERTY CXX_STANDARD 20)
+set_property(TARGET evmone-unittests PROPERTY CXX_STANDARD_REQUIRED YES)
 target_sources(
     evmone-unittests PRIVATE
     analysis_test.cpp
@@ -105,11 +107,33 @@ gtest_discover_tests(
     ENVIRONMENT LLVM_PROFILE_FILE=${PROJECT_BINARY_DIR}/unittests-%p.profraw
 )
 
-option(EVMONE_EVM_TEST_TOOL "Enable EVM unit testing tool for EVMC implementations (not maintained)" OFF)
+# The evm-unittests library contains generic EVM unit tests for EVMC-compatible VMs.
+add_library(evm-unittests OBJECT
+    evm_fixture.hpp
+    evm_test.cpp
+    evm_calls_test.cpp
+    evm_state_test.cpp
+    evm_other_test.cpp
+)
+set_property(TARGET evm-unittests PROPERTY CXX_STANDARD 20)
+set_property(TARGET evm-unittests PROPERTY CXX_STANDARD_REQUIRED YES)
+target_link_libraries(evm-unittests PRIVATE testutils evmc::mocked_host GTest::gtest)
+
+option(EVMONE_EVM_TEST_TOOL "Enable EVM unit testing tool for EVMC implementations (not maintained)" ON)
 if(EVMONE_EVM_TEST_TOOL)
-    # The evm-test tool that contains the all evm-unittests and loads VMs as EVMC modules.
+    # The evm-test tool that contains all evm-unittests and loads VMs as EVMC modules.
     add_executable(evm-test main.cpp)
-    target_link_libraries(evm-test PRIVATE evm-unittests testutils evmc::evmc evmc::loader GTest::gtest)
+    set_property(TARGET evm-test PROPERTY CXX_STANDARD 20)
+    set_property(TARGET evm-test PROPERTY CXX_STANDARD_REQUIRED YES)
+    target_link_libraries(evm-test PRIVATE evmone evm-unittests testutils evmc::evmc evmc::loader GTest::gtest)
+    target_include_directories(evm-test PRIVATE ${evmone_private_include_dir})
+
+#    gtest_discover_tests(
+#        evm-test
+#        TEST_PREFIX ${PROJECT_NAME}/unittests/
+#        PROPERTIES
+#        ENVIRONMENT LLVM_PROFILE_FILE=${PROJECT_BINARY_DIR}/unittests-%p.profraw
+#    )   
 endif()
 
 # Provide the project version to selected source files.

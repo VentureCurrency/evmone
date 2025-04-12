@@ -2,20 +2,29 @@
 // Copyright 2019 The evmone Authors.
 // SPDX-License-Identifier: Apache-2.0
 
-#include "vm_loader.hpp"
+#include "evm_fixture.hpp"
+#include <evmc/evmc.hpp>
+#include <evmone/evmone.h>
 #include <evmc/loader.h>
 #include <gtest/gtest.h>
 #include <iostream>
 #include <string>
 #include <vector>
 
+using evmone::test::evm;
+
 /// The loaded EVMC module.
 static evmc::VM evmc_module;
 
-evmc::VM& get_vm() noexcept
+namespace evmone::test
 {
-    return evmc_module;
-}
+ evmc::VM& get_vm() noexcept
+ {
+     evmc_module = evmc::VM{evmc_create_evmone()};
+     return evmc_module;
+ }
+}  // namespace evmone::test
+
 
 /// Simple and copy&paste distributable CLI parser.
 ///

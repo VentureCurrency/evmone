@@ -30,7 +30,12 @@ add_subdirectory(eoftest)
 add_subdirectory(t8n)
 add_subdirectory(unittests)
 
+# QUESTION: doesn't this call to set() clobber the existing targets which were set by all other CMakeLists.txt files in subdirs?
 set(targets evmone-bench evmone-bench-internal evmone-eofparse evmone-blockchaintest evmone-precompiles-bench evmone-state evmone-statetest evmone-eoftest evmone-t8n evmone-unittests)
+
+if(EVMONE_EVM_TEST_TOOL)
+    list(APPEND targets evm-test)
+endif()
 
 if(EVMONE_FUZZING)
     add_subdirectory(eofparsefuzz)
